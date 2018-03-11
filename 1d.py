@@ -5,7 +5,7 @@ import matplotlib.mlab as mlab
 from scipy import stats
 
 
-def simulate_gmm(X, k_clusters):
+def run_em(X, k_clusters):
     n = len(X)
     mu = np.random.choice(X, k_clusters)
     sigma = np.ones(k_clusters) * np.sqrt(np.var(X))
@@ -53,4 +53,4 @@ if __name__ == "__main__":
     k_clusters = len(examples_cluster)
     X = np.ravel(examples_cluster)
 
-    simulate_gmm(X, k_clusters)
+    run_em(X, k_clusters)

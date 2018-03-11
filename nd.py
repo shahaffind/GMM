@@ -5,7 +5,7 @@ import matplotlib.mlab as mlab
 from scipy import stats
 
 
-def simulate_nd_gmm(X, k_clusters):
+def run_em_nd(X, k_clusters):
     m = len(X)
     start_points = np.random.randint(0, len(X), k_clusters)
     mu = X[start_points]
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     k_clusters = len(examples_cluster)
     X = examples_cluster.reshape(-1, 2)
 
-    mu, sigma = simulate_nd_gmm(X, k_clusters)
+    mu, sigma = run_em_nd(X, k_clusters)
 
     plt.scatter(X[:, 0], X[:, 1])
 
