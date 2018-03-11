@@ -2,7 +2,7 @@ import numpy as np
 import copy
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
-import itertools
+
 
 def calc_expectation(point, mu, sigma):
     return (1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-np.power(point - mu, 2) / (2 * np.power(sigma, 2)))
