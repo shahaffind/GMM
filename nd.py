@@ -1,7 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
-from scipy import stats
+
+
+def calc_log_weighted_prob(X, mu, Q, phi):
+    mean_diff = X - mu
+    dim = len(X)
+
+    l_k = - 0.5 * np.dot(np.dot(mean_diff, Q), mean_diff)
+    w_k = phi / np.sqrt(np.power(2 * np.pi, dim) * (1 / np.linalg.det(Q)))
+    log_weighted_prob = l_k + np.log(w_k)
+
+    return log_weighted_prob
 
 
 def run_em_nd(X, k_clusters):
@@ -11,19 +21,22 @@ def run_em_nd(X, k_clusters):
 
     start_cov = np.cov(X, rowvar=False)
     sigma = np.array([start_cov.copy()] * k_clusters)
+    start_Q = np.linalg.inv(start_cov)
+    Q = np.array([start_Q] * k_clusters)
 
     phi = np.ones(k_clusters) / k_clusters
 
-    g = np.zeros([m, k_clusters])
+    weighted_log_prob = np.zeros(k_clusters)
     W = np.zeros([m, k_clusters])
 
     for it in xrange(0, 1000):
         # E - step:
         for i in xrange(0, m):
             for j in xrange(0, k_clusters):
-                g[i][j] = stats.multivariate_normal.pdf(X[i], mu[j], sigma[j]) * phi[j]
-            sum_W = g[i].sum()
-            W[i] = g[i] / sum_W
+                weighted_log_prob[j] = calc_log_weighted_prob(X[i], mu[j], Q[j], phi[j])
+            max_log_prob = np.max(weighted_log_prob)
+            shifted_probs = np.exp(weighted_log_prob - max_log_prob)
+            W[i] = shifted_probs / shifted_probs.sum()
 
         # M - step
         prev_mu = mu.copy()
@@ -32,6 +45,7 @@ def run_em_nd(X, k_clusters):
             mu[j] = np.dot(W[:, j], X) / W[:, j].sum()
 
             sigma[j] = np.cov(X, rowvar=False, aweights=W[:, j])
+            Q[j] = np.linalg.inv(sigma[j])
 
         if np.allclose(prev_mu, mu):
             print "%d iterations" % it
